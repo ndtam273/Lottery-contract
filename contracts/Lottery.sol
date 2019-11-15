@@ -15,12 +15,22 @@ contract Lottery {
       players.push(msg.sender);
   }
 
-  function random() public view returns (uint) {
+  function random() private view returns (uint) {
       return uint(keccak256(block.difficulty, now, players));
   }
 
-  function pickWinner() public {
+  function pickWinner() public restricted {
       uint index = random() % players.length;
       players[index].transfer(this.balance);
+      players = new address[](0);
+  }
+
+  modifier restricted() {
+    require(msg.sender == manager);
+    _;
+  }
+
+  function getplayers() public view returns (address[]) {
+    return players;
   }
 }
